@@ -1,0 +1,24 @@
+body {
+  font-family: Arial;
+  padding: 20px;
+}
+
+input, select {
+  margin: 5px;
+  padding: 5px;
+}
+
+table {
+  border-collapse: collapse;
+  margin-top: 20px;
+  width: 100%;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+}
+
+th {
+  background-color: #f4f4f4;
+}
