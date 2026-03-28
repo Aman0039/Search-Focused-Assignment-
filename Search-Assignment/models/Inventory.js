@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
 
+//inventory schema
 
- //inventory schema
- 
 const inventorySchema = new mongoose.Schema({
   supplier_id: {
     type: mongoose.Schema.Types.ObjectId,
