@@ -6,7 +6,7 @@ const Inventory = require('../models/Inventory');
 const Supplier = require('../models/Supplier');
 
 
-//adding data in the Inventory
+//adding data
 router.post('/', async (req, res) => {
   try {
     let { supplier_id, product_name, quantity, price, category } = req.body;
@@ -36,7 +36,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// get inventory data
+// get data
 router.get('/', async (req, res) => {
   const data = await Inventory.find().populate('supplier_id');
   res.json(data);

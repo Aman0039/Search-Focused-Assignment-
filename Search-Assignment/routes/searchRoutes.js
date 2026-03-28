@@ -2,16 +2,33 @@ const express = require('express');
 const router = express.Router();
 const Inventory = require('../models/Inventory');
 
-//search the data
+// Utility: escape regex special chars
+const escapeRegex = (text) => {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
 
+// Utility: build flexible regex (handles spaces / broken typing)
+const buildFlexibleRegex = (query) => {
+  const cleaned = query.replace(/\s+/g, ''); // remove spaces
+  const escaped = escapeRegex(cleaned);
+
+  // Insert optional space between every character
+  const pattern = escaped.split('').join('\\s*');
+
+  return new RegExp(pattern, 'i'); // case-insensitive
+};
+
+// search route
 router.get('/', async (req, res) => {
   try {
     const { q, category, minPrice, maxPrice } = req.query;
 
     let filter = {};
 
+    // handlling search queries.
     if (q) {
-      filter.product_name = { $regex: q, $options: "i" };
+      const regex = buildFlexibleRegex(q);
+      filter.product_name = { $regex: regex };
     }
 
     if (category) {

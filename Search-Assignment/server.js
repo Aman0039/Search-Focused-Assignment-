@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -8,23 +10,37 @@ const searchRoutes = require('./routes/searchRoutes');
 
 const app = express();
 
-// Middleware to parse the data;
+// middleware
 app.use(express.json());
 
-// running frontend (SSR);
+// handle routes
+app.use('/api/supplier', supplierRoutes);
+app.use('/api/inventory', inventoryRoutes);
+app.use('/api/search', searchRoutes);
+
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-// handlling Routes
-app.use('/supplier', supplierRoutes);
-app.use('/inventory', inventoryRoutes);
-app.use('/search', searchRoutes);
+// frontend SSR
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// handle routes
+app.get(/^\/(?!api).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // MongoDB connection
-mongoose.connect('mongodb://127.0.0.1:27017/inventoryDB')
-  .then(() => console.log("✅ MongoDB Connected"))
-  .catch(err => console.log(err));
+const DB_URL = process.env.MONGO_URI;
 
-// Running Server
-app.listen(5000, () => {
-  console.log("🚀 Server running at http://localhost:5000");
+mongoose.connect(DB_URL)
+  .then(() => console.log("MongoDB Connected"))
+  .catch(err => console.log("DB Error:", err));
+
+const PORT = process.env.PORT || 5000;
+
+// server
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });

@@ -1,32 +1,67 @@
-async function search() {
-  const q = document.getElementById("q").value;
-  const category = document.getElementById("category").value;
-  const minPrice = document.getElementById("minPrice").value;
-  const maxPrice = document.getElementById("maxPrice").value;
+
+window.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+
+    document.getElementById("q").value = params.get("q") || "";
+    document.getElementById("category").value = params.get("category") || "";
+    document.getElementById("minPrice").value = params.get("minPrice") || "";
+    document.getElementById("maxPrice").value = params.get("maxPrice") || "";
+
+    if ([...params.keys()].length > 0) {
+        fetchAndRender(params);
+    }
+});
 
 
-  const res = await fetch(`/search?q=${q}&category=${category}&minPrice=${minPrice}&maxPrice=${maxPrice}`);
-  const data = await res.json();
+// search function to handle search
+function search() {
+    const q = document.getElementById("q").value.trim();
+    const category = document.getElementById("category").value;
+    const minPrice = document.getElementById("minPrice").value;
+    const maxPrice = document.getElementById("maxPrice").value;
 
-  const tbody = document.getElementById("results");
-  const noData = document.getElementById("noData");
+    const params = new URLSearchParams();
 
-  tbody.innerHTML = "";
-  noData.innerHTML = "";
+    if (q) params.set("q", q);
+    if (category) params.set("category", category);
+    if (minPrice) params.set("minPrice", minPrice);
+    if (maxPrice) params.set("maxPrice", maxPrice);
 
-  if (data.length === 0) {
-    noData.innerHTML = "No results found";
-    return;
-  }
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.pushState({}, "", newUrl);
 
-  data.forEach(item => {
-    tbody.innerHTML += `
-      <tr>
-        <td>${item.product_name}</td>
-        <td>${item.category}</td>
-        <td>₹${item.price}</td>
-        <td>${item.quantity}</td>
-      </tr>
-    `;
-  });
+    // fetch data
+    fetchAndRender(params);
+}
+
+
+async function fetchAndRender(params) {
+    const url = `/api/search?${params.toString()}`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    const results = document.getElementById("results");
+    const noData = document.getElementById("noData");
+
+    results.innerHTML = "";
+
+    if (!data.length) {
+        noData.innerText = "No products found";
+        return;
+    }
+
+    noData.innerText = "";
+
+    data.forEach(item => {
+        const row = `
+            <tr>
+                <td>${item.product_name}</td>
+                <td>${item.category}</td>
+                <td>${item.price}</td>
+                <td>${item.quantity}</td>
+            </tr>
+        `;
+        results.innerHTML += row;
+    });
 }

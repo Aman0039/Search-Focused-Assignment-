@@ -20,7 +20,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Get all suppliers
+// all suppliers
 router.get('/', async (req, res) => {
   const data = await Supplier.find();
   res.json(data);
