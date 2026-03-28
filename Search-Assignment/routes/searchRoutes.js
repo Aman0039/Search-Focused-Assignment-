@@ -2,31 +2,24 @@ const express = require('express');
 const router = express.Router();
 const Inventory = require('../models/Inventory');
 
-// Utility: escape regex special chars
 const escapeRegex = (text) => {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
 
-// Utility: build flexible regex (handles spaces / broken typing)
 const buildFlexibleRegex = (query) => {
-  const cleaned = query.replace(/\s+/g, ''); // remove spaces
+  const cleaned = String(query || '').toLowerCase().replace(/\s+/g, '');
   const escaped = escapeRegex(cleaned);
-
-  // Insert optional space between every character
-  const pattern = escaped.split('').join('\\s*');
-
-  return new RegExp(pattern, 'i'); // case-insensitive
+  const pattern = escaped.split('').join('.*');
+  return new RegExp(pattern, 'i');
 };
 
-// search route
 router.get('/', async (req, res) => {
   try {
     const { q, category, minPrice, maxPrice } = req.query;
 
     let filter = {};
 
-    // handlling search queries.
-    if (q) {
+    if (q && String(q).trim() !== '') {
       const regex = buildFlexibleRegex(q);
       filter.product_name = { $regex: regex };
     }
@@ -49,7 +42,7 @@ router.get('/', async (req, res) => {
 
     res.json(results);
   } catch (err) {
-    res.status(500).send(err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
